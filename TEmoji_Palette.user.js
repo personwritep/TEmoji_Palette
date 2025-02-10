@@ -1,0 +1,173 @@
+// ==UserScript==
+// @name        TEmoji Palette
+// @namespace        http://tampermonkey.net/
+// @version        0.6
+// @description        記事タイトル用のWin絵文字・モノクロ絵文字の入力パレット
+// @author        Ameba Blog User
+// @match        https://blog.ameba.jp/ucs/entry/*
+// @exclude        https://blog.ameba.jp/ucs/entry/srventrylist.do*
+// @icon        https://www.google.com/s2/favicons?sz=64&domain=ameba.jp
+// @grant        none
+// @updateURL        https://github.com/personwritep/TEmoji_Palette/raw/main/TEmoji_Palette.user.js
+// @downloadURL        https://github.com/personwritep/TEmoji_Palette/raw/main/TEmoji_Palette.user.js
+// ==/UserScript==
+
+
+let title_input=document.querySelector('.p-title__text');
+
+if(title_input){
+    title_input.onmousedown=function(event){
+        if(event.ctrlKey){
+            event.stopImmediatePropagation();
+            palette(title_input); }}}
+
+
+function palette(title_input){
+    let help_url=
+        'https://ameblo.jp/personwritep/entry-12869676315.html';
+
+    let tep_help=
+        '<a class="tep_help" href="'+ help_url +'" target="_blank">'+
+        '<svg width="20" height="20" viewBox="0 0 150 150">'+
+        '<path  fill="#fff" d="M66 13C56 15 47 18 39 24C-12 60 18 146 82 137C92 '+
+        '135 102 131 110 126C162 90 128 4 66 13M68 25C131 17 145 117 81 '+
+        '125C16 133 3 34 68 25M69 40C61 41 39 58 58 61C66 63 73 47 82 57C84 '+
+        '60 83 62 81 65C77 70 52 90 76 89C82 89 82 84 86 81C92 76 98 74 100 66'+
+        'C105 48 84 37 69 40M70 94C58 99 66 118 78 112C90 107 82 89 70 94z">'+
+        '</path></svg></a>';
+
+    let disp=
+        '<div id="tep">'+
+        '<div class="tep_title">'+
+        '<b>Emoji Palette For Title</b>'+ tep_help +
+        '<input type="button" class="tep_close"value="✖">'+
+        '</div>'+
+        '<div class="win_emoji"></div>'+
+        '<div class="monochrome_emoji"></div>'+
+        '<style>'+
+        '#tep { position: absolute; top: 60px; display: flex; flex-direction: column; '+
+        'width: 732px; margin-left: -1px; padding: 8px; font: normal 16px/1.6 Meiryo; '+
+        'border: 1px solid #009688; border-radius: 4px; background: #eee; z-index: 10; '+
+        'box-shadow: 2px 4px 4px #00000030; } '+
+        '.tep_title { display: flex; justify-content: space-between; align-items: center; '+
+        'height: 27px; padding: 3px 12px 0; border-bottom: 8px solid #eee; color: #fff; '+
+        'background: #2196f3; } '+
+        '.tep_help svg { margin-left: 440px; vertical-align: -5px; } '+
+        '.tep_close { height: 21px; width: 21px; line-height: 21px; margin-bottom: 3px; '+
+        'border: 1px solid #fff; border-radius: 2px; background: transparent; } '+
+        '.tep_close:hover { color: #2106f3; background: #fff; } '+
+        '.win_emoji, .monochrome_emoji { display: flex; flex-wrap: wrap; font-size: 21px; '+
+        'justify-content: space-between; background: #fff; color: #000; padding: 4px 30px; } '+
+        '.win_emoji { margin-bottom: 8px; } '+
+        '.win_emoji span, .monochrome_emoji span { width: 24px; line-height: 22px; '+
+        'padding: 2px 0 0; margin: 3px; text-align: center; cursor: pointer; } '+
+        '.win_emoji span { text-indent: -2.5px; } '+
+        '.win_emoji span:hover, .monochrome_emoji span:hover { outline: 1px solid #2196f3; } '+
+        '</style></div>';
+
+    let form=document.querySelector('.l-form> form');
+    if(form){
+        if(!form.querySelector('#tep')){
+            form.insertAdjacentHTML('beforeend', disp);
+            title_input.setAttribute('autocomplete', 'off');
+            panel();
+            click_it();
+            close(); }
+        else{
+            form.querySelector('#tep').remove();
+            title_input.setAttribute('autocomplete', 'on'); }
+
+
+        function panel(){
+            let ps0=
+                '✋✊✨⚽⚾⛳⌛⏳⌚⏰⏱⏲☕⛵⚓⛽⛲⛺⛅⭐☔⚡'+
+                '⛄⛔❌⭕❗❕❓❔❎✅➿♿⏸⏯⏹⏺⏭⏮⏩⏪⏫⏬'+
+                '⛎➰ℹ➕➖➗⚪⚫⬛⬜　　　　　　　　　　　　';
+
+            let win_emoji=document.querySelector('.win_emoji');
+            for(let k=0; k<ps0.length; k++){
+                let ps='<span>'+ ps0[k] +'</span>';
+                win_emoji.insertAdjacentHTML('beforeend', ps); }
+
+            let ps1=
+                '☺☹☠⛷☝✌✍⛑⛸♠♣♥♦⛏⚒⚙⚗⚖⛓⚔☎⚰'+
+                '⚱⌨✉✏✒✂☘✈⛴⛰⛩+☁⛈☀☄☂⛱❄☃❤❣'+
+                '☮✝☪☸✡☯☦♈♉♊♋♌♍♎♏♐♑♒♓⚛☢☣'+
+                '✴㊙㊗‼⁉⚜〽⚠♻❇✳▶◀⏏➡⬅⬆⬇↗↘↙↖'+
+                '↕↔↪↩⤴⤵☑〰✔✖Ⓜ©®™◾◽◼◻▪▫　　';
+
+            let monochrome_emoji=document.querySelector('.monochrome_emoji');
+            for(let k=0; k<ps1.length; k++){
+                let ps='<span>'+ ps1[k] +'</span>';
+                monochrome_emoji.insertAdjacentHTML('beforeend', ps); }
+
+        } // panel()
+
+
+        function click_it(){
+            title_input.focus();
+
+            let c_span=document.querySelectorAll('#tep span');
+            for(let k=0; k<c_span.length; k++){
+                c_span[k].onclick=function(event){
+                    event.preventDefault();
+                    set_char(c_span[k].textContent); }}
+
+
+            function set_char(char){
+                let title_input=document.querySelector('.p-title__text');
+                if(title_input){
+                    title_input.focus(); // キャレットを表示
+                    let pos=title_input.selectionStart;
+                    let title_str=title_input.value;
+                    let before=title_str.substring(0, pos);
+                    let after=title_str.substring(pos);
+                    let new_title=before + char + after;
+                    if(new_title.length<49){ // タイトル上限48文字
+                        title_input.value=new_title;
+                        title_input.setSelectionRange(pos+1, pos+1); }}}
+
+        } // click_it()
+
+
+        function close(){
+            let close=document.querySelector('.tep_close');
+            if(close){
+                close.onclick=function(event){
+                    event.preventDefault();
+                    form.querySelector('#tep').remove();
+                    title_input.setAttribute('autocomplete', 'on'); }}
+
+            document.addEventListener('keydown', function(event){
+                if(event.keyCode=='27'){
+                    form.querySelector('#tep').remove();
+                    title_input.setAttribute('autocomplete', 'on'); }});
+        } // close()
+
+    } // if(form)
+
+} // palette()
+
+
+
+
+let title_str;
+if(title_input){
+    title_input.onchange=function(){
+        title_str=title_input.value;
+        check_codeUnits(title_str); }}
+
+
+function check_codeUnits(str){
+    let hav=0;
+    for (let i=0; i< str.length; i++){
+        let c=str.charCodeAt(i);
+        if((0xD800<=c && c<=0xDBFF) || (0xDC00<=c && c<=0xDFFF)){
+            hav+=1; }}
+
+    if(hav!=0){
+        title_input.style.background='#ffebee'; }
+    else{
+        title_input.style.background=''; }}
+
+
