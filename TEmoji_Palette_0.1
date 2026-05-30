@@ -1,0 +1,69 @@
+// ==UserScript==
+// @name         TEmoji Palette
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  記事タイトル用のWin絵文字・モノクロ絵文字の入力パレット
+// @author       Ameba Blog User
+// @match        https://blog.ameba.jp/ucs/entry/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=ameba.jp
+// @grant        none
+// ==/UserScript==
+
+
+let title_input=document.querySelector('.p-title__text');
+
+if(title_input){
+    title_input.onchange=function(){
+        palette(); }}
+
+
+function palette(){
+
+    let disp=
+        '<div id="tep">'+
+        '<div class="win_emoji"></div>'+
+        '<div class="monochrome_emoji"></div>'+
+        '<style>'+
+        '#tep { position: absolute; top: 60px; left: -1px; z-index: 10; '+
+        'display: flex; flex-direction: column; width: 748px; '+
+        'font: normal 16px Meiryo; color: #000;  border: 1px solid #aaa; background: #fff; } '+
+        '.win_emoji, .monochrome_emoji { '+
+        'display: flex; flex-wrap: wrap; justify-content: space-between; } '+
+        '.win_emoji { padding: 10px 34px 0 26px; } '+
+        '.monochrome_emoji { padding: 10px 30px; } '+
+        '.win_emoji span, .monochrome_emoji span { width: 30px; } '+
+        '.monochrome_emoji p.ps2 { letter-spacing: 16px; margin-left: 3px; } '+
+        '</style></div>';
+
+    let l_form=document.querySelector('.l-form');
+    if(l_form){
+        if(!l_form.querySelector('#tep')){
+            l_form.insertAdjacentHTML('beforeend', disp); }}
+
+    let ps0=
+        '✋✊✨⚽⚾⛳⌛⏳⌚⏰⏱⏲☕⛵⚓⛽⛲⛺⛅⭐☔⚡'+
+        '⛄⛔❌⭕❗❕❓❔❎✅➿♿⏸⏯⏹⏺⏭⏮⏩⏪⏫⏬'+
+        '⛎➰ℹ➕➖➗⚪⚫⬛⬜　　　　　　　　　　　　';
+
+    let win_emoji=document.querySelector('.win_emoji');
+    for(let k=0; k<ps0.length; k++){
+        let ps='<span>'+ ps0[k] +'</span>';
+        win_emoji.insertAdjacentHTML('beforeend', ps); }
+
+    let ps1=
+        '☺☹☠⛷☝✌✍⛑⛸♠♣♥♦⛏⚒⚙⚗⚖⛓⚔☎⚰⚱'+
+        '⌨✉✏✒✂☘✈⛴⛰⛩+☁⛈☀☄☂⛱❄☃❤❣☮'+
+        '✝☪☸✡☯☦♈♉♊♋♌♍♎♏♐♑♒♓⚛☢☣✴㊙'+
+        '㊗‼⁉⚜〽⚠♻❇✳Ⓜ'+
+        '▶◀⏏➡⬅⬆⬇↗↘↙↖↕↔↪↩⤴⤵☑〰✔✖©®'+
+        '™◾◽◼◻▪▫　　';
+
+    let monochrome_emoji=document.querySelector('.monochrome_emoji');
+    for(let k=0; k<ps1.length; k++){
+        let ps='<span>'+ ps1[k] +'</span>';
+        monochrome_emoji.insertAdjacentHTML('beforeend', ps); }
+
+    let ps2='<p class="ps2">#️⃣*️⃣0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣</p>';
+    monochrome_emoji.insertAdjacentHTML('beforeend', ps2);
+
+} // palette()
