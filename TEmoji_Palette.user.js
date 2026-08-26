@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name        TEmoji Palette
 // @namespace        http://tampermonkey.net/
-// @version        0.6
+// @version        0.7
 // @description        記事タイトル用のWin絵文字・モノクロ絵文字の入力パレット
 // @author        Ameba Blog User
-// @match        https://blog.ameba.jp/ucs/entry/*
-// @exclude        https://blog.ameba.jp/ucs/entry/srventrylist.do*
+// @match        https://blog.ameba.jp/ucs/entry/srventryinsertinput.do*
+// @match        https://blog.ameba.jp/ucs/entry/srventryupdateinput.do*
 // @icon        https://www.google.com/s2/favicons?sz=64&domain=ameba.jp
 // @grant        none
 // @updateURL        https://github.com/personwritep/TEmoji_Palette/raw/main/TEmoji_Palette.user.js
@@ -169,5 +169,3 @@ function check_codeUnits(str){
         title_input.style.background='#ffebee'; }
     else{
         title_input.style.background=''; }}
-
-
