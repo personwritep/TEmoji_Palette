@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        TEmoji Palette
 // @namespace        http://tampermonkey.net/
-// @version        0.7
+// @version        0.8
 // @description        記事タイトル用のWin絵文字・モノクロ絵文字の入力パレット
 // @author        Ameba Blog User
 // @match        https://blog.ameba.jp/ucs/entry/srventryinsertinput.do*
@@ -13,6 +13,9 @@
 // ==/UserScript==
 
 
+let listen=Symbol();
+
+
 let title_input=document.querySelector('.p-title__text');
 
 if(title_input){
@@ -20,6 +23,7 @@ if(title_input){
         if(event.ctrlKey){
             event.stopImmediatePropagation();
             palette(title_input); }}}
+
 
 
 function palette(title_input){
@@ -57,10 +61,10 @@ function palette(title_input){
         'border: 1px solid #fff; border-radius: 2px; background: transparent; } '+
         '.tep_close:hover { color: #2106f3; background: #fff; } '+
         '.win_emoji, .monochrome_emoji { display: flex; flex-wrap: wrap; font-size: 21px; '+
-        'justify-content: space-between; background: #fff; color: #000; padding: 4px 30px; } '+
+        'justify-content: flex-start; background: #fff; color: #000; padding: 4px 28px; } '+
         '.win_emoji { margin-bottom: 8px; } '+
         '.win_emoji span, .monochrome_emoji span { width: 24px; line-height: 22px; '+
-        'padding: 2px 0 0; margin: 3px; text-align: center; cursor: pointer; } '+
+        'padding: 2px 0 0; margin: 3px 4px; text-align: center; cursor: pointer; } '+
         '.win_emoji span { text-indent: -2.5px; } '+
         '.win_emoji span:hover, .monochrome_emoji span:hover { outline: 1px solid #2196f3; } '+
         '</style></div>';
@@ -72,82 +76,100 @@ function palette(title_input){
             title_input.setAttribute('autocomplete', 'off');
             panel();
             click_it();
-            close(); }
+            close(form); }
         else{
             form.querySelector('#tep').remove();
-            title_input.setAttribute('autocomplete', 'on'); }
+            title_input.setAttribute('autocomplete', 'on'); }}
+
+} // palette(title_input)
 
 
-        function panel(){
-            let ps0=
-                '✋✊✨⚽⚾⛳⌛⏳⌚⏰⏱⏲☕⛵⚓⛽⛲⛺⛅⭐☔⚡'+
-                '⛄⛔❌⭕❗❕❓❔❎✅➿♿⏸⏯⏹⏺⏭⏮⏩⏪⏫⏬'+
-                '⛎➰ℹ➕➖➗⚪⚫⬛⬜　　　　　　　　　　　　';
 
-            let win_emoji=document.querySelector('.win_emoji');
-            for(let k=0; k<ps0.length; k++){
-                let ps='<span>'+ ps0[k] +'</span>';
-                win_emoji.insertAdjacentHTML('beforeend', ps); }
+function panel(){
+    let ps0=
+        '✋✊✨⚽⚾⛳⌛⏳⌚⏰⏱⏲☕⛵⚓⛽⛲⛺⛅⭐☔⚡'+
+        '⛄⛔❌⭕❗❕❓❔❎✅➿♿⏸⏯⏹⏺⏭⏮⏩⏪⏫⏬'+
+        '⛎➰ℹ➕➖➗⚪⚫⬛⬜⚕️♾️';
 
-            let ps1=
-                '☺☹☠⛷☝✌✍⛑⛸♠♣♥♦⛏⚒⚙⚗⚖⛓⚔☎⚰'+
-                '⚱⌨✉✏✒✂☘✈⛴⛰⛩+☁⛈☀☄☂⛱❄☃❤❣'+
-                '☮✝☪☸✡☯☦♈♉♊♋♌♍♎♏♐♑♒♓⚛☢☣'+
-                '✴㊙㊗‼⁉⚜〽⚠♻❇✳▶◀⏏➡⬅⬆⬇↗↘↙↖'+
-                '↕↔↪↩⤴⤵☑〰✔✖Ⓜ©®™◾◽◼◻▪▫　　';
+    let win_emoji=document.querySelector('.win_emoji');
+    let segmenter=new Intl.Segmenter('ja', { granularity: 'grapheme' });
+    let segments=segmenter.segment(ps0);
 
-            let monochrome_emoji=document.querySelector('.monochrome_emoji');
-            for(let k=0; k<ps1.length; k++){
-                let ps='<span>'+ ps1[k] +'</span>';
-                monochrome_emoji.insertAdjacentHTML('beforeend', ps); }
-
-        } // panel()
+    for(let { segment } of segments){
+        let span_elm=document.createElement('span');
+        span_elm.textContent=segment;
+        win_emoji.appendChild(span_elm); }
 
 
-        function click_it(){
-            title_input.focus();
+    let ps1=
+        '☺☹☠⛷☝✌✍⛑⛸♠♣♥♦⛏⚒⚙⚗⚖⛓⚔☎⚰'+
+        '⚱⌨✉✏✒✂☘✈⛴⛰⛩+☁⛈☀☄☂⛱❄☃❤❣'+
+        '☮✝☪☸✡☯☦♈♉♊♋♌♍♎♏♐♑♒♓⚛☢☣'+
+        '✴㊙㊗‼⁉⚜〽⚠♻❇✳▶◀⏏➡⬅⬆⬇↗↘↙↖'+
+        '↕↔↪↩⤴⤵☑〰✔✖Ⓜ©®™◾◽◼◻▪▫';
 
-            let c_span=document.querySelectorAll('#tep span');
-            for(let k=0; k<c_span.length; k++){
-                c_span[k].onclick=function(event){
-                    event.preventDefault();
-                    set_char(c_span[k].textContent); }}
+    let monochrome_emoji=document.querySelector('.monochrome_emoji');
+    for(let k=0; k<ps1.length; k++){
+        let ps='<span>'+ ps1[k] +'</span>';
+        monochrome_emoji.insertAdjacentHTML('beforeend', ps); }
 
-
-            function set_char(char){
-                let title_input=document.querySelector('.p-title__text');
-                if(title_input){
-                    title_input.focus(); // キャレットを表示
-                    let pos=title_input.selectionStart;
-                    let title_str=title_input.value;
-                    let before=title_str.substring(0, pos);
-                    let after=title_str.substring(pos);
-                    let new_title=before + char + after;
-                    if(new_title.length<49){ // タイトル上限48文字
-                        title_input.value=new_title;
-                        title_input.setSelectionRange(pos+1, pos+1); }}}
-
-        } // click_it()
+} // panel()
 
 
-        function close(){
-            let close=document.querySelector('.tep_close');
-            if(close){
-                close.onclick=function(event){
-                    event.preventDefault();
-                    form.querySelector('#tep').remove();
-                    title_input.setAttribute('autocomplete', 'on'); }}
 
-            document.addEventListener('keydown', function(event){
-                if(event.keyCode=='27'){
-                    form.querySelector('#tep').remove();
-                    title_input.setAttribute('autocomplete', 'on'); }});
-        } // close()
+function click_it(){
+    title_input.focus();
 
-    } // if(form)
+    let tep=document.querySelector('#tep');
+    if(tep){
+        if(!tep[listen]){
+            tep.addEventListener("click", get_c_button);
+            tep[listen]=true; }}
 
-} // palette()
 
+    function get_c_button(event){
+        if(event.target.tagName==="SPAN"){
+            event.preventDefault();
+            let c_button=event.target.closest('span');
+            set_char(c_button.textContent); }}
+
+
+
+    function set_char(char){
+        let title_input=document.querySelector('.p-title__text');
+        if(title_input){
+            title_input.focus(); // キャレットを表示
+            let pos=title_input.selectionStart;
+            let title_str=title_input.value;
+            let before=title_str.substring(0, pos);
+            let after=title_str.substring(pos);
+            let new_title=before + char + after;
+
+            if(new_title.length < 49){ // タイトル上限48文字
+                title_input.value=new_title;
+                let next_pos=pos + char.length;
+                title_input.setSelectionRange(next_pos, next_pos); }}}
+
+} // click_it()
+
+
+
+function close(form){
+    let close=document.querySelector('.tep_close');
+    if(close){
+        close.onclick=function(event){
+            event.preventDefault();
+            form.querySelector('#tep').remove();
+            title_input.setAttribute('autocomplete', 'on'); }}
+
+    if(!document[listen]){
+        document.addEventListener('keydown', function(event){
+            if(event.keyCode=='27'){
+                form.querySelector('#tep').remove();
+                title_input.setAttribute('autocomplete', 'on'); }});
+        document[listen]=true; }
+
+} // close()
 
 
 
